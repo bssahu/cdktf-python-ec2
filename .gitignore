@@ -1,0 +1,36 @@
+dist/
+imports/*
+!imports/__init__.py
+.terraform
+cdktf.out
+cdktf.log
+*terraform.*.tfstate*
+
+# Ignore pipenv files
+Pipfile.lock
+
+# Ignore Python compiled files
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Ignore local virtual environment folder
+.venv/
+
+# Ignore Terraform state files
+*.tfstate
+*.tfstate.*
+
+# Ignore CDKTF output files
+cdktf.out/
+cdktf.log
+cdktf.tf.json
+
+# Ignore Terraform plan files
+*.tfplan
+
+# Ignore Python test files
+coverage.xml
+*.coverage
+*.log
