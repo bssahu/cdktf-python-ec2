@@ -1,3 +1,4 @@
+venv/
 dist/
 imports/*
 !imports/__init__.py
