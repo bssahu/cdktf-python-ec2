@@ -16,6 +16,5 @@ Python -m venv venv
 
 source venv/bin/activate
 
-pip install cdktf-cdktf-provider-aws
-
+pip install -r requirements.txt
 
