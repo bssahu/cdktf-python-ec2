@@ -1,0 +1,6 @@
+{
+    "instance_name": "MyInstance",
+    "ec2_name_tag": "MyEC2Instance",
+    "stack_id": "my-ec2-instance"
+  }
+  

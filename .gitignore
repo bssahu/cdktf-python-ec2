@@ -34,3 +34,4 @@ cdktf.tf.json
 coverage.xml
 *.coverage
 *.log
+venv/

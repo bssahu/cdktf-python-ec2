@@ -1,33 +1,46 @@
-#!/usr/bin/env python
-from constructs import Construct
 from cdktf import App, TerraformStack
+from constructs import Construct
 from cdktf_cdktf_provider_aws.provider import AwsProvider
-from cdktf_cdktf_provider_aws.instance import Instance
-from cdktf_cdktf_provider_aws.subnet import Subnet
 from cdktf_cdktf_provider_aws.vpc import Vpc
+from cdktf_cdktf_provider_aws.subnet import Subnet
+from cdktf_cdktf_provider_aws.instance import Instance
 
-class MyStack(TerraformStack):
+
+from config import Config  # Import the configuration
+
+def create_vpc(stack: TerraformStack):
+    """Create and return a VPC resource."""
+    return Vpc(stack, "MyVPC",
+               cidr_block=Config.VPC_CIDR,
+               enable_dns_support=True,
+               enable_dns_hostnames=True)
+
+def create_subnet(stack: TerraformStack, vpc_id: str):
+    """Create and return a Subnet resource."""
+    return Subnet(stack, "MySubnet",
+                  vpc_id=vpc_id,
+                  cidr_block=Config.SUBNET_CIDR)
+
+def create_ec2_instance(stack: TerraformStack, subnet_id: str):
+    """Create and return an EC2 instance resource."""
+    return Instance(stack, Config.INSTANCE_NAME,
+                    ami=Config.AMI_ID,
+                    instance_type=Config.INSTANCE_TYPE,
+                    subnet_id=subnet_id,
+                    tags={"Name": Config.EC2_NAME_TAG})
+
+class MyEc2Stack(TerraformStack):
     def __init__(self, scope: Construct, id: str):
         super().__init__(scope, id)
 
-        #Configure AWS provider
-        self.provider = AwsProvider(self, "aws", region="us-east-1");
-        #create a vpc
-        self.vpc = Vpc(self, "vpc", cidr_block="10.0.0.0/16", enable_dns_hostnames=True, enable_dns_support=True) # type: ignore
+        # Configure AWS Provider
+        AwsProvider(self, "AWS", region=Config.REGION)
 
-        #create a subnet
-        self.subnet = Subnet(self, "subnet", vpc_id=self.vpc.id, cidr_block="10.0.1.0/24", availability_zone="us-east-1a")  
-
-        #create ec2 instance
-        self.instance = Instance(self, "instance", 
-                                 ami="ami-0b5eea76982371e91", 
-                                 instance_type="t2.micro", 
-                                 subnet_id=self.subnet.id,
-                                 tags={"Name": "my-ec2-instance"} ) 
-        
-
+        # Create resources
+        vpc = create_vpc(self)
+        subnet = create_subnet(self, vpc.id)
+        create_ec2_instance(self, subnet.id)
 
 app = App()
-MyStack(app, "my-ec2-instance")
-
+MyEc2Stack(app, Config.STACK_ID)  # Use stack ID from JSON
 app.synth()
