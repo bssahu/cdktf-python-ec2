@@ -35,7 +35,14 @@ class MyEc2Stack(TerraformStack):
 
         # Configure AWS Provider
         AwsProvider(self, "AWS", region=Config.REGION)
-
+         # Configure AWS Provider for LocalStack
+        AwsProvider(self, "AWS",
+                    region=Config.REGION,
+                    access_key="test",  # Dummy access key for LocalStack
+                    secret_key="test",  # Dummy secret key for LocalStack
+                    endpoints={
+                        "ec2": "http://localhost:4566",  # LocalStack EC2 service
+                    })
         # Create resources
         vpc = create_vpc(self)
         subnet = create_subnet(self, vpc.id)
