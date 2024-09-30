@@ -1,6 +1,6 @@
 from cdktf import App, TerraformStack
 from constructs import Construct
-from cdktf_cdktf_provider_aws.provider import AwsProvider
+from cdktf_cdktf_provider_aws.provider import AwsProvider,AwsProviderEndpoints
 from cdktf_cdktf_provider_aws.vpc import Vpc
 from cdktf_cdktf_provider_aws.subnet import Subnet
 from cdktf_cdktf_provider_aws.instance import Instance
@@ -34,15 +34,32 @@ class MyEc2Stack(TerraformStack):
         super().__init__(scope, id)
 
         # Configure AWS Provider
-        AwsProvider(self, "AWS", region=Config.REGION)
+        #AwsProvider(self, "AWS", region=Config.REGION)
          # Configure AWS Provider for LocalStack
-        AwsProvider(self, "AWS",
-                    region=Config.REGION,
-                    access_key="test",  # Dummy access key for LocalStack
-                    secret_key="test",  # Dummy secret key for LocalStack
-                    endpoints={
-                        "ec2": "http://localhost:4566",  # LocalStack EC2 service
-                    })
+        AwsProvider(
+            self,
+            "localstack",
+            region="us-east-1",
+            access_key="test",
+            secret_key="test",
+            s3_use_path_style=False,
+            skip_credentials_validation=True,
+            skip_metadata_api_check="true",  # this value is incorrectly typed as a str in AwsProvider
+            skip_requesting_account_id=True,
+            endpoints=[ AwsProviderEndpoints(
+                apigateway     = "http://localhost:4566",
+                apigatewayv2   = "http://localhost:4566",
+                cloudformation = "http://localhost:4566",
+                cloudwatch     = "http://localhost:4566",
+                dynamodb       = "http://localhost:4566",
+                ec2            = "http://localhost:4566",
+                es             = "http://localhost:4566",
+                elasticache    = "http://localhost:4566",
+                firehose       = "http://localhost:4566",
+                iam            = "http://localhost:4566",
+                kinesis        = "http://localhost:4566"
+            )]
+            )
         # Create resources
         vpc = create_vpc(self)
         subnet = create_subnet(self, vpc.id)
